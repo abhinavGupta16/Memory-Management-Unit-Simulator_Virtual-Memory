@@ -9,12 +9,14 @@
 #include <bits/stdc++.h>
 #include <string>
 #include "VirtualMemoryAddress.h"
+#include "PageTableEntry.h"
 
 using namespace std;
 
 class Process {
 public:
     vector<VirtualMemoryAddress*> vmas;
+    vector<PageTableEntry> pageTable;
     Process();
 };
 
