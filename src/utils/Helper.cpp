@@ -162,7 +162,7 @@ PageTableEntry* getPageTableEntry(pair<char, int> instruction, Process *process)
     PageTableEntry *pte = &(process->pageTable.at(instruction.second));
     // Initialize PTE entry
     if(!pte->vmaPresent){
-       pte->vmaPresent = vma->write_protected;
+       pte->writeProtect = vma->write_protected;
        pte->fileMapped = vma->file_mapped;
     }
     return pte;
@@ -210,7 +210,7 @@ void printPageTable(vector<Process*> *processes) {
                 } else {
                     cout << "-";
                 }
-            } else if(pte.pagedout & pte.modified & pte.referenced){
+            } else if(pte.pagedout){
                 cout<<" #";
             } else {
                 cout<< " *";

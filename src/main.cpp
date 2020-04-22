@@ -75,32 +75,39 @@ int main(int argc, char *argv[]) {
                     if(oldFTE->process != nullptr){
                         printf(" UNMAP %d:%d\n", oldFTE->process->pid, oldFTE->virtualPageNumber);
                         process->pageStats->unmapCnt++;
-                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified){
+                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified &
+                                !oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).fileMapped){
                             printf(" OUT\n");
                             process->pageStats->pageoutCnt++;
                         }
-                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).fileMapped){
+                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).fileMapped &
+                                oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified){
                             printf(" FOUT\n");
                             process->pageStats->pagefoutCnt++;
                         }
 
-                        oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).pagedout = 1;
+                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified) {
+                            oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).pagedout = 1;
+                        }
                         oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).present = 0;
                         oldFTE->virtualPageNumber = -1;
                         oldFTE->process = nullptr;
                     }
-                    if(pte->pagedout & pte->modified){
+                    if(pte->pagedout){
                         cout<< " IN"<<endl;
                         process->pageStats->pageinCnt++;
-                    } else if (pte->pagedout & pte->fileMapped) {
+                    } else if (pte->fileMapped) {
                         cout<< " FIN"<<endl;
                         process->pageStats->pagefinCnt++;
                     } else {
                         cout << " ZERO" << endl;
                         process->pageStats->zeroOpCnt++;
                     }
+
                     oldFTE->process = process;
                     oldFTE->virtualPageNumber = instruction.second;
+
+                    pte->reset();
 
                     pte->present = 1;
                     pte->phyAddr = oldFTE->phyFrameNumber;
