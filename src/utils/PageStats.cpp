@@ -19,4 +19,7 @@ PageStats::PageStats(){
     this->pagefinCnt = 0;
     this->pagefoutCnt = 0;
     this->zeroOpCnt = 0;
+    this->accessCnt = 0;
+    this->contextCnt = 0;
+    this->processExitCnt = 0;
 }

@@ -21,6 +21,9 @@ public:
     unsigned long long pagefinCnt;
     unsigned long long pagefoutCnt;
     unsigned long long zeroOpCnt;
+    unsigned long long accessCnt;
+    unsigned long long contextCnt;
+    unsigned long long processExitCnt;
     PageStats();
 };
 

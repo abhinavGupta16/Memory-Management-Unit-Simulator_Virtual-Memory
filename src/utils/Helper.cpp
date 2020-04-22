@@ -233,3 +233,25 @@ void printFrameTable(vector<FrameTableEntry*> *frameTable){
     }
     cout << " " << endl;
 }
+
+void printProcessStats(vector<Process*> *processes, unsigned long long instCount){
+    PageStats *pageStats;
+    unsigned long long cycles = 0LL;
+    unsigned long long ctxSwitches = 0LL;
+    unsigned long long processExits = 0LL;
+    for (int i = 0; i < processes->size(); i++) {
+        pageStats = processes->at(i)->pageStats;
+        cycles += ((pageStats->mapCnt * 400) + (pageStats->unmapCnt * 400) + (pageStats->pageinCnt * 3000) + (pageStats->pageoutCnt * 3000)
+                + (pageStats->pagefinCnt * 2500) + (pageStats->pagefoutCnt * 2500) + (pageStats->zeroOpCnt * 150) + (pageStats->segvCnt * 240)
+                + (pageStats->segprotCnt * 300) + (pageStats->accessCnt * 1) + (pageStats->contextCnt * 121) + (pageStats->processExitCnt * 175));
+
+        ctxSwitches += pageStats->contextCnt;
+
+        printf("PROC[%d]: U=%llu M=%llu I=%llu O=%llu FI=%llu FO=%llu Z=%llu SV=%llu SP=%llu\n",
+               processes->at(i)->pid,
+               pageStats->unmapCnt, pageStats->mapCnt, pageStats->pageinCnt, pageStats->pageoutCnt,
+               pageStats->pagefinCnt, pageStats->pagefoutCnt, pageStats->zeroOpCnt,
+               pageStats->segvCnt, pageStats->segprotCnt);
+    }
+    printf("TOTALCOST %llu %llu %llu %llu\n", instCount, ctxSwitches, processExits, cycles);
+}

@@ -5,7 +5,6 @@
 #ifndef ASSIGNMENT3_PAGER_H
 #define ASSIGNMENT3_PAGER_H
 
-
 class Pager {
 public:
     virtual int selectVictimFrame() = 0;

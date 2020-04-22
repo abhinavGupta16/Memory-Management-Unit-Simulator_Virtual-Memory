@@ -25,4 +25,5 @@ PageTableEntry* getPageTableEntry(pair<char, int> instruction, Process *process)
 void initialiseFrameTable(int frameTableSize, vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool);
 void printPageTable(vector<Process*> *processes);
 void printFrameTable(vector<FrameTableEntry*> *frameTable);
+void printProcessStats(vector<Process*> *processes, unsigned long long instCount);
 #endif //ASSIGNMENT3_HELPER_H

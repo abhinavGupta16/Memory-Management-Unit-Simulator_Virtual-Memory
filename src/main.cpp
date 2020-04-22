@@ -44,10 +44,7 @@ int main(int argc, char *argv[]) {
 
     pair<char, int> instruction;
     Process *process;
-    FrameTableEntry* oldFTE;
-    bool valid = false;
-    int instCount = 0;
-    int vno = -1;
+    unsigned long long instCount = 0;
 
     while(getInstruction(inputFile, instruction)) {
         printInstruction(instCount, instruction);
@@ -57,10 +54,13 @@ int main(int argc, char *argv[]) {
         switch(instruction.first) {
             case 'c' :
                 process = processes.at(instruction.second);
+                process->pageStats->contextCnt++;
                 break;
             case 'e' :
+                process->pageStats->processExitCnt++;
                 break;
             default:
+                process->pageStats->accessCnt++;
                 pte = getPageTableEntry(instruction, process);
                 if(pte==nullptr){
                     //segfault
@@ -68,7 +68,6 @@ int main(int argc, char *argv[]) {
                     process->pageStats->segvCnt++;
                     continue;
                 }
-                vno = instruction.second;
                 if(!pte->present){
 
                     FrameTableEntry *oldFTE = getFrame(pager);
@@ -90,7 +89,6 @@ int main(int argc, char *argv[]) {
                         oldFTE->virtualPageNumber = -1;
                         oldFTE->process = nullptr;
                     }
-                    process->pageStats->mapCnt++;
                     if(pte->pagedout & pte->modified){
                         cout<< " IN"<<endl;
                         process->pageStats->pageinCnt++;
@@ -106,7 +104,7 @@ int main(int argc, char *argv[]) {
 
                     pte->present = 1;
                     pte->phyAddr = oldFTE->phyFrameNumber;
-                    process->pageTable.at(vno);
+                    process->pageTable.at(instruction.second);
                     cout<<" MAP " << oldFTE->phyFrameNumber<<endl;
                     process->pageStats->mapCnt++;
                 }
@@ -129,15 +127,7 @@ int main(int argc, char *argv[]) {
         printFrameTable(&frameTable);
 
     if(O) {
-        PageStats *pageStats;
-        for (int i = 0; i < processes.size(); i++) {
-            pageStats = processes.at(i)->pageStats;
-            printf("PROC[%d]: U=%lu M=%lu I=%lu O=%lu FI=%lu FO=%lu Z=%lu SV=%lu SP=%lu\n",
-                   processes.at(i)->pid,
-                   pageStats->unmapCnt, pageStats->mapCnt, pageStats->pageinCnt, pageStats->pageoutCnt,
-                   pageStats->pagefinCnt, pageStats->pagefoutCnt, pageStats->zeroOpCnt,
-                   pageStats->segvCnt, pageStats->segprotCnt);
-        }
+        printProcessStats(&processes, instCount);
     }
     return 0;
 }
