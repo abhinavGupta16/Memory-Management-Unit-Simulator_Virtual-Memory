@@ -18,3 +18,7 @@ VirtualMemoryAddress::VirtualMemoryAddress(int start_vpage, int end_vpage, int w
     this->write_protected = write_protected;
     this->file_mapped = file_mapped;
 }
+
+void VirtualMemoryAddress::print(){
+    cout<<this->start_vpage << " " << this->end_vpage << " " << this->write_protected << this->file_mapped << endl;
+}

@@ -12,7 +12,8 @@ class FrameTableEntry {
 public:
     Process *process;
     int virtualPageNumber;
-    FrameTableEntry(Process *process, int virtualPageNumber);
+    int phyFrameNumber;
+    FrameTableEntry(Process *process, int virtualPageNumber, int phyFrameNumber);
 };
 
 

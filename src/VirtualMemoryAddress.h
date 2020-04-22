@@ -13,6 +13,7 @@ public:
     int write_protected;
     int file_mapped;
     VirtualMemoryAddress(int start_vpage, int end_vpage, int write_protected, int file_mapped);
+    void print();
 };
 
 

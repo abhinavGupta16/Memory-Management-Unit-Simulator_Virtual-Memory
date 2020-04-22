@@ -15,10 +15,14 @@
 
 using namespace std;
 
-void readInputFile(vector<Process*> &processes, ReadFile *inputFile);
-bool getInstruction(ReadFile *inputFile, pair<char, int> &instruction);
-void printInstruction(int &instCount, pair<char, int> &instruction);
-bool checkValidPage(int virtualPage, vector<VirtualMemoryAddress*> *vmas, VirtualMemoryAddress *vma);
+//void readInputFile(string filename, vector<Process*> &processes, vector<Instruction*> &instructions);
+
+void readInputFile(vector<Process*> *processes, ReadFile *inputFile);
+bool getInstruction(ReadFile *inputFile, pair<char,int> &instruction);
+void printInstruction(int instCount, pair<char, int> instruction);
+bool checkValidPage(int virtualPage, Process* process, VirtualMemoryAddress* &vma);
 PageTableEntry* getPageTableEntry(pair<char, int> instruction, Process *process);
-void initialiseFrameTable(int frameTableSize, vector<FrameTableEntry*> *frameTable);
+void initialiseFrameTable(int frameTableSize, vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool);
+void printPageTable(vector<Process*> *processes);
+void printFrameTable(vector<FrameTableEntry*> *frameTable);
 #endif //ASSIGNMENT3_HELPER_H

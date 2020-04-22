@@ -4,7 +4,8 @@
 
 #include "FrameTableEntry.h"
 
-FrameTableEntry::FrameTableEntry(Process *process, int virtualPageNumber){
+FrameTableEntry::FrameTableEntry(Process *process, int virtualPageNumber, int phyFrameNumber){
     this->process = process;
     this->virtualPageNumber = virtualPageNumber;
+    this->phyFrameNumber = phyFrameNumber;
 }

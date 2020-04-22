@@ -13,11 +13,10 @@ using namespace std;
 
 class FIFO : public Pager{
 private:
-    vector<int> queue;
     int hand;
 public:
     int selectVictimFrame() override;
-    FIFO(int framesize);
+    FIFO();
 };
 
 

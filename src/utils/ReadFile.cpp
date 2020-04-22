@@ -8,7 +8,7 @@ ReadFile::ReadFile(string filename) : input(filename) {
     this->filename = filename;
 }
 
-string Trim(string& src)
+string trim(string& src)
 {
     // Removes all spaces from the beginning of the string
     while(src.size() && isspace(src.front()))
@@ -23,7 +23,15 @@ string Trim(string& src)
 
 string ReadFile::readLine() {
     string line = "";
-    while(input.is_open() && getline(input, line) && Trim(line).compare("") && (line.at(0) == '#' || line.at(0) == '\n'));
+    while(input.is_open() && getline(input, line)){
+        if(trim(line) =="")
+            continue;
+        if(line.at(0) == '#' || line.at(0) == '\n'){
+            continue;
+        } else {
+            break;
+        }
+    }
     return line;
 }
 

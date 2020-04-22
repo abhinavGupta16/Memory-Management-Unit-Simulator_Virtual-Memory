@@ -19,3 +19,10 @@ PageTableEntry::PageTableEntry() {
     this->fileMapped = 0;
     this->vmaPresent = 0;
 };
+
+void PageTableEntry::reset(){
+    this->present = 0;
+    this->modified = 0;
+    this->referenced = 0;
+    this->phyAddr = 100;
+}

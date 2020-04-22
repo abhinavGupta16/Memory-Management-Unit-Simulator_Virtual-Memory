@@ -21,6 +21,7 @@ public:
     unsigned int fileMapped : 1;
     unsigned int vmaPresent : 1;
     PageTableEntry();
+    void reset();
 };
 
 

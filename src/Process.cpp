@@ -4,5 +4,7 @@
 
 #include "Process.h"
 
-Process::Process() : pageTable(64){
+Process::Process(int pid) : pageTable(64){
+    this->pid = pid;
+    this->pageStats = new PageStats();
 }

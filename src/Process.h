@@ -10,6 +10,7 @@
 #include <string>
 #include "VirtualMemoryAddress.h"
 #include "PageTableEntry.h"
+#include "utils/PageStats.h"
 
 using namespace std;
 
@@ -17,7 +18,9 @@ class Process {
 public:
     vector<VirtualMemoryAddress*> vmas;
     vector<PageTableEntry> pageTable;
-    Process();
+    int pid;
+    PageStats *pageStats;
+    Process(int pid);
 };
 
 
