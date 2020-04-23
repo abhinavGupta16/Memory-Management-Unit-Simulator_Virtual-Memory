@@ -9,72 +9,9 @@
 #include <string>
 #include "../Process.h"
 #include "../VirtualMemoryAddress.h"
-#include "../Instruction.h"
 #include "../FrameTableEntry.h"
 
 using namespace std;
-
-
-//void convertStringToTokens(string line, vector<string> *tokens){
-//    size_t prev = 0, pos;
-//    while ((pos = line.find_first_of(" ", prev)) != string::npos) {
-//        if (pos > prev)
-//            tokens->push_back(line.substr(prev, pos - prev));
-//        prev = pos + 1;
-//    }
-//    if (prev < line.length())
-//        tokens->push_back(line.substr(prev, string::npos));
-//}
-//
-//VirtualMemoryAddress* readVmas(ifstream &input) {
-//    string line;
-//    vector<string> tokens;
-//    while(getline(input, line) && line.at(0)== '#');
-//    convertStringToTokens(line, &tokens);
-//    return new VirtualMemoryAddress(stoi(tokens[0]), stoi(tokens[1]), stoi(tokens[2]), stoi(tokens[3]));
-//}
-//
-//void readInputFile(string filename, vector<Process*> &processes, vector<Instruction*> &instructions){
-//    ifstream input(filename);
-//    string line;
-//    vector<string> tokens;
-//
-//    int numOfProcess = 0;
-//    while(getline(input, line)){
-//        if(line.at(0) == '#')
-//            continue;
-//        else{
-//            numOfProcess = stoi(line);
-//            break;
-//        }
-//    }
-//
-//    for(int i = 0; i<numOfProcess;){
-//        getline(input, line);
-//        if(line.at(0) == '#')
-//            continue;
-//        int numberOfVma = stoi(line);
-//        Process *process = new Process();
-//        while(numberOfVma > 0) {
-//            process->vmas.push_back(readVmas(input));
-//            numberOfVma--;
-//        }
-//        processes.push_back(process);
-//        i++;
-//    }
-//
-//    while(getline(input, line)){
-//        if(line.at(0)=='#'){
-//            continue;
-//        }
-//        convertStringToTokens(line, &tokens);
-//        Instruction *instruction = new Instruction(tokens[0][0], stoi(tokens[1]));
-//        instructions.push_back(instruction);
-//        tokens.clear();
-//    }
-//}
-
-/////////////////////////////////////////////////////////////////////////////////////////
 
 void convertStringToTokens(string line, vector<string> *tokens){
     size_t prev = 0, pos;
@@ -93,20 +30,6 @@ VirtualMemoryAddress* readVmas(ReadFile *inputFile) {
     convertStringToTokens(line, &tokens);
     return new VirtualMemoryAddress(stoi(tokens[0]), stoi(tokens[1]), stoi(tokens[2]), stoi(tokens[3]));
 }
-
-//void readInstructions(ReadFile *inputFile, vector<Instruction*> *instructions){
-//    string line;
-//    vector<string> tokens;
-//    while(getline(input, line)){
-//        if(line.at(0)=='#'){
-//            continue;
-//        }
-//        convertStringToTokens(line, &tokens);
-//        Instruction *instruction = new Instruction(tokens[0][0], stoi(tokens[1]));
-//        instructions->push_back(instruction);
-//        tokens.clear();
-//    }
-//}
 
 void readInputFile(vector<Process*> *processes, ReadFile *inputFile){
     string line;
@@ -131,14 +54,8 @@ bool getInstruction(ReadFile *inputFile, pair<char,int> &instruction){
     if(inputFile->eof()){
         return false;
     }
-
     vector<string> tokens;
     convertStringToTokens(line, &tokens);
-
-//    pair<char, int> *ptr = new pair<char,int>;
-//    ptr->first = tokens[0].at(0);
-//    ptr->second = stoi(tokens[1]);
-//    valid = true;
     instruction = make_pair(tokens[0].at(0), stoi(tokens[1]));
     return true;
 }
@@ -146,9 +63,7 @@ bool getInstruction(ReadFile *inputFile, pair<char,int> &instruction){
 
 
 void printInstruction(int instCount, pair<char, int> instruction){
-//    printf("%d: ==> %c %d\n", instCount, instruction.first, instruction.second);
-    cout<< instCount << ": ==> " << instruction.first << " " << instruction.second << endl;
-//    (*instCount)++;
+    printf("%d: ==> %c %d\n", instCount, instruction.first, instruction.second);
 }
 
 PageTableEntry* getPageTableEntry(pair<char, int> instruction, Process *process){
@@ -187,37 +102,41 @@ void initialiseFrameTable(int frameTableSize, vector<FrameTableEntry*> *frameTab
     }
 }
 
-void printPageTable(vector<Process*> *processes) {
+void printPageTableForProcess(Process *process){
     PageTableEntry pte;
-    for(int i = 0; i < processes->size(); i++){
-        printf("PT[%d]:", i);
-        for(int j = 0; j < processes->at(i)->pageTable.size(); j++){
-            pte = processes->at(i)->pageTable.at(j);
-            if(pte.present) {
-                printf(" %d:", j);
-                if (pte.referenced) {
-                    cout << "R";
-                } else {
-                    cout << "-";
-                }
-                if (pte.modified) {
-                    cout << "M";
-                } else {
-                    cout << "-";
-                }
-                if (pte.pagedout) {
-                    cout << "S";
-                } else {
-                    cout << "-";
-                }
-            } else if(pte.pagedout){
-                cout<<" #";
+    printf("PT[%d]:", process->pid);
+    for(int j = 0; j < process->pageTable.size(); j++){
+        pte = process->pageTable.at(j);
+        if(pte.present) {
+            printf(" %d:", j);
+            if (pte.referenced) {
+                cout << "R";
             } else {
-                cout<< " *";
+                cout << "-";
             }
+            if (pte.modified) {
+                cout << "M";
+            } else {
+                cout << "-";
+            }
+            if (pte.pagedout) {
+                cout << "S";
+            } else {
+                cout << "-";
+            }
+        } else if(pte.pagedout){
+            cout<<" #";
+        } else {
+            cout<< " *";
         }
     }
     cout<< " " << endl;
+}
+
+void printPageTable(vector<Process*> *processes) {
+    for(int i = 0; i < processes->size(); i++){
+        printPageTableForProcess(processes->at(i));
+    }
 }
 
 void printFrameTable(vector<FrameTableEntry*> *frameTable){
@@ -246,6 +165,7 @@ void printProcessStats(vector<Process*> *processes, unsigned long long instCount
                 + (pageStats->segprotCnt * 300) + (pageStats->accessCnt * 1) + (pageStats->contextCnt * 121) + (pageStats->processExitCnt * 175));
 
         ctxSwitches += pageStats->contextCnt;
+        processExits += pageStats->processExitCnt;
 
         printf("PROC[%d]: U=%llu M=%llu I=%llu O=%llu FI=%llu FO=%llu Z=%llu SV=%llu SP=%llu\n",
                processes->at(i)->pid,
@@ -254,4 +174,42 @@ void printProcessStats(vector<Process*> *processes, unsigned long long instCount
                pageStats->segvCnt, pageStats->segprotCnt);
     }
     printf("TOTALCOST %llu %llu %llu %llu\n", instCount, ctxSwitches, processExits, cycles);
+}
+
+void unmapPage(FrameTableEntry* oldFTE, bool pageExit){
+    Process *oldProcess = oldFTE->process;
+    printf(" UNMAP %d:%d\n", oldProcess->pid, oldFTE->virtualPageNumber);
+    oldProcess->pageStats->unmapCnt++;
+    if(!pageExit && oldProcess->pageTable.at(oldFTE->virtualPageNumber).modified &
+       !oldProcess->pageTable.at(oldFTE->virtualPageNumber).fileMapped){
+        printf(" OUT\n");
+        oldProcess->pageStats->pageoutCnt++;
+    }
+    if(oldProcess->pageTable.at(oldFTE->virtualPageNumber).fileMapped &
+       oldProcess->pageTable.at(oldFTE->virtualPageNumber).modified){
+        printf(" FOUT\n");
+        oldProcess->pageStats->pagefoutCnt++;
+    }
+
+    if(!pageExit && oldProcess->pageTable.at(oldFTE->virtualPageNumber).modified & !oldProcess->pageTable.at(oldFTE->virtualPageNumber).fileMapped ) {
+        oldProcess->pageTable.at(oldFTE->virtualPageNumber).pagedout = 1;
+    }
+    oldProcess->pageTable.at(oldFTE->virtualPageNumber).present = 0;
+    oldFTE->virtualPageNumber = -1;
+    oldFTE->process = nullptr;
+}
+
+void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool){
+    PageTableEntry *pte;
+    cout << "EXIT current process " << process->pid << endl;
+    for(int i = 0; i < process->pageTable.size(); i++){
+        pte = &(process->pageTable.at(i));
+        pte->pagedout = 0;
+        if(pte->present){
+            int fteptr = pte->phyAddr;
+            FrameTableEntry *oldFTE = frameTable->at(fteptr);
+            unmapPage(oldFTE, true);
+            freePool->push_back(oldFTE);
+        }
+    }
 }

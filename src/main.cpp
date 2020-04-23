@@ -22,6 +22,8 @@ bool O = false;
 bool frameTableOption = false;
 bool pageTableOption = false;
 bool sum = false;
+bool xOption = false;
+bool yOption = false;
 
 FrameTableEntry* getFrame(Pager *pager);
 
@@ -31,8 +33,6 @@ int main(int argc, char *argv[]) {
 
     parseArguments(argc, argv);
     string inputFilename = argv[optind];
-
-    cout<<inputFilename<<endl;
 
     vector<Process*> processes;
 
@@ -58,6 +58,7 @@ int main(int argc, char *argv[]) {
                 break;
             case 'e' :
                 process->pageStats->processExitCnt++;
+                exitProcess(process, &frameTable, &freePool);
                 break;
             default:
                 process->pageStats->accessCnt++;
@@ -73,32 +74,14 @@ int main(int argc, char *argv[]) {
                     FrameTableEntry *oldFTE = getFrame(pager);
 
                     if(oldFTE->process != nullptr){
-                        printf(" UNMAP %d:%d\n", oldFTE->process->pid, oldFTE->virtualPageNumber);
-                        process->pageStats->unmapCnt++;
-                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified &
-                                !oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).fileMapped){
-                            printf(" OUT\n");
-                            process->pageStats->pageoutCnt++;
-                        }
-                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).fileMapped &
-                                oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified){
-                            printf(" FOUT\n");
-                            process->pageStats->pagefoutCnt++;
-                        }
-
-                        if(oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).modified) {
-                            oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).pagedout = 1;
-                        }
-                        oldFTE->process->pageTable.at(oldFTE->virtualPageNumber).present = 0;
-                        oldFTE->virtualPageNumber = -1;
-                        oldFTE->process = nullptr;
+                        unmapPage(oldFTE, false);
                     }
-                    if(pte->pagedout){
-                        cout<< " IN"<<endl;
-                        process->pageStats->pageinCnt++;
-                    } else if (pte->fileMapped) {
+                    if (pte->fileMapped) {
                         cout<< " FIN"<<endl;
                         process->pageStats->pagefinCnt++;
+                    } else if(pte->pagedout){
+                        cout<< " IN"<<endl;
+                        process->pageStats->pageinCnt++;
                     } else {
                         cout << " ZERO" << endl;
                         process->pageStats->zeroOpCnt++;
@@ -124,6 +107,8 @@ int main(int argc, char *argv[]) {
                         pte->modified = 1;
                     }
                 }
+                if(xOption)
+                    printPageTableForProcess(process);
             break;
         }
     }
@@ -172,7 +157,7 @@ void parseArguments(int argc, char *argv[]){
                 }
                 break;
             case 'o':
-                for(int i = 0; i < 4; i++) {
+                for(int i = 0; i < 6; i++) {
                     switch (optarg[i]) {
                         case 'O':
                             O = true;
@@ -185,6 +170,12 @@ void parseArguments(int argc, char *argv[]){
                             break;
                         case 'S':
                             sum = true;
+                            break;
+                        case 'x':
+                            xOption = true;
+                            break;
+                        case 'y':
+                            yOption = true;
                             break;
                         default:
                             break;

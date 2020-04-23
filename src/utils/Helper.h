@@ -26,4 +26,7 @@ void initialiseFrameTable(int frameTableSize, vector<FrameTableEntry*> *frameTab
 void printPageTable(vector<Process*> *processes);
 void printFrameTable(vector<FrameTableEntry*> *frameTable);
 void printProcessStats(vector<Process*> *processes, unsigned long long instCount);
+void printPageTableForProcess(Process *process);
+void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool);
+void unmapPage(FrameTableEntry* oldFTE, bool pageExit);
 #endif //ASSIGNMENT3_HELPER_H
