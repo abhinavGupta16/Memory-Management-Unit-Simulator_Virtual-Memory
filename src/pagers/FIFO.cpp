@@ -3,18 +3,22 @@
 //
 
 #include "FIFO.h"
+#include "../FrameTableEntry.h"
 #include <iostream>
 #include <bits/stdc++.h>
 
 using namespace std;
 
-FIFO::FIFO() {
+FIFO::FIFO(vector<FrameTableEntry*> *frameTable) {
     this->hand = 0;
+    this->frameTable = frameTable;
 }
 
-int FIFO::selectVictimFrame(){
-
+FrameTableEntry* FIFO::selectVictimFrame(){
     int framePointer = hand;
     hand++;
-    return framePointer;
+    if(hand == frameTable->size()){
+        hand = 0;
+    }
+    return frameTable->at(framePointer);
 }

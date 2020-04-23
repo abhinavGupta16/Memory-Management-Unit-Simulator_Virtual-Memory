@@ -5,9 +5,11 @@
 #ifndef ASSIGNMENT3_PAGER_H
 #define ASSIGNMENT3_PAGER_H
 
+#include "../FrameTableEntry.h"
+
 class Pager {
 public:
-    virtual int selectVictimFrame() = 0;
+    virtual FrameTableEntry* selectVictimFrame() = 0;
 };
 
 

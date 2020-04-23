@@ -19,6 +19,7 @@ public:
     string readLine();
     ReadFile(string filename);
     bool eof();
+    void reset();
 };
 
 

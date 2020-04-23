@@ -33,10 +33,12 @@ int main(int argc, char *argv[]) {
 
     parseArguments(argc, argv);
     string inputFilename = argv[optind];
+    string randomFilename = argv[optind+1];
 
     vector<Process*> processes;
 
     ReadFile *inputFile = new ReadFile(inputFilename);
+    ReadFile *randomFile = new ReadFile(randomFilename);
 
     readInputFile(&processes, inputFile);
 
@@ -130,7 +132,7 @@ FrameTableEntry* getFrame(Pager *pager){
         freePool.erase(freePool.begin());
         return fte;
     } else {
-        return frameTable[pager->selectVictimFrame() % frameTable.size()];
+        return pager->selectVictimFrame();
     }
 }
 
@@ -148,7 +150,7 @@ void parseArguments(int argc, char *argv[]){
                 pagerInitialized = true;
                 switch(optarg[0]) {
                     case 'f':
-                        pager = new FIFO();
+                        pager = new FIFO(&frameTable);
                         break;
                     default:
                         fputs("Error: invalid scheduler "
@@ -187,5 +189,5 @@ void parseArguments(int argc, char *argv[]){
         }
 
     if(!pagerInitialized)
-        pager = new FIFO();
+        pager = new FIFO(&frameTable);
 }

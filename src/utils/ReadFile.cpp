@@ -39,3 +39,8 @@ bool ReadFile::eof(){
     return input.eof();
 }
 
+void ReadFile::reset(){
+    input.clear();
+    input.seekg(0, ios::beg);
+}
+

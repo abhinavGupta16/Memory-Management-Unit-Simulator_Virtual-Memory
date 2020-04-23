@@ -6,6 +6,7 @@
 #define ASSIGNMENT3_FIFO_H
 
 #include "Pager.h"
+#include "../FrameTableEntry.h"
 #include <iostream>
 #include <bits/stdc++.h>
 
@@ -14,9 +15,10 @@ using namespace std;
 class FIFO : public Pager{
 private:
     int hand;
+    vector<FrameTableEntry*> *frameTable;
 public:
-    int selectVictimFrame() override;
-    FIFO();
+    FrameTableEntry* selectVictimFrame() override;
+    FIFO(vector<FrameTableEntry*> *frameTable);
 };
 
 
