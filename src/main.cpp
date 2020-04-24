@@ -4,12 +4,9 @@
 #include <getopt.h>
 
 #include "utils/Helper.h"
-#include "Process.h"
 #include "utils/ReadFile.h"
 #include "pagers/Pager.h"
-#include "FrameTableEntry.h"
 #include "pagers/FIFO.h"
-#include "utils/PageStats.h"
 #include "pagers/Clock.h"
 #include "pagers/Random.h"
 #include "pagers/NotRecentlyUsed.h"
@@ -22,7 +19,7 @@ vector<FrameTableEntry*> frameTable;
 vector<FrameTableEntry*> freePool;
 int frameTableSize = 16;
 Pager* pager;
-bool processOption = false;
+bool instOption = false;
 bool frameTableOption = false;
 bool pageTableOption = false;
 bool sumOption = false;
@@ -61,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
 
     while(getInstruction(inputFile, instruction)) {
-        printInstruction(instCount, instruction);
+        if(instOption) printInstruction(instCount, instruction);
         PageTableEntry *pte;
         switch(instruction.first) {
             case 'c' :
@@ -70,14 +67,14 @@ int main(int argc, char *argv[]) {
                 break;
             case 'e' :
                 process->pageStats->processExitCnt++;
-                exitProcess(process, &frameTable, &freePool);
+                exitProcess(process, &frameTable, &freePool, instOption);
                 break;
             default:
                 process->pageStats->accessCnt++;
                 pte = getPageTableEntry(instruction, process);
                 if(pte==nullptr){
                     //segfault
-                    cout<<" SEGV"<<endl;
+                    if(instOption) cout<<" SEGV"<<endl;
                     process->pageStats->segvCnt++;
                     break;
                 }
@@ -86,16 +83,16 @@ int main(int argc, char *argv[]) {
                     FrameTableEntry *oldFTE = getFrame(pager);
 
                     if(oldFTE->process != nullptr){
-                        unmapPage(oldFTE, false);
+                        unmapPage(oldFTE, false, instOption);
                     }
                     if (pte->fileMapped) {
-                        cout<< " FIN"<<endl;
+                        if(instOption) cout<< " FIN"<<endl;
                         process->pageStats->pagefinCnt++;
                     } else if(pte->pagedout){
-                        cout<< " IN"<<endl;
+                        if(instOption) cout<< " IN"<<endl;
                         process->pageStats->pageinCnt++;
                     } else {
-                        cout << " ZERO" << endl;
+                        if(instOption) cout << " ZERO" << endl;
                         process->pageStats->zeroOpCnt++;
                     }
 
@@ -109,14 +106,14 @@ int main(int argc, char *argv[]) {
                     pte->present = 1;
                     pte->phyAddr = oldFTE->phyFrameNumber;
                     process->pageTable.at(instruction.second);
-                    cout<<" MAP " << oldFTE->phyFrameNumber<<endl;
+                    if(instOption) cout<<" MAP " << oldFTE->phyFrameNumber<<endl;
                     process->pageStats->mapCnt++;
                 }
                 pte->referenced = 1;
 
                 if (instruction.first == 'w'){
                     if(pte->writeProtect){
-                        cout<<" SEGPROT"<< endl;
+                        if(instOption) cout<<" SEGPROT"<< endl;
                         process->pageStats->segprotCnt++;
                     } else {
                         pte->modified = 1;
@@ -137,7 +134,9 @@ int main(int argc, char *argv[]) {
     if(frameTableOption)
         printFrameTable(&frameTable);
 
-    printProcessStats(&processes, instCount, processOption, sumOption);
+    if(sumOption)
+        printProcessStats(&processes, instCount);
+
     return 0;
 }
 
@@ -192,7 +191,7 @@ void parseArguments(int argc, char *argv[]){
                 for(int i = 0; i < 6; i++) {
                     switch (optarg[i]) {
                         case 'O':
-                            processOption = true;
+                            instOption = true;
                             break;
                         case 'F':
                             frameTableOption = true;

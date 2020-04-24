@@ -153,43 +153,45 @@ void printFrameTable(vector<FrameTableEntry*> *frameTable){
     cout << " " << endl;
 }
 
-void printProcessStats(vector<Process*> *processes, unsigned long long instCount, bool processOption, bool sumOption){
+void printProcessStats(vector<Process*> *processes, unsigned long long instCount){
     PageStats *pageStats;
     unsigned long long cycles = 0LL;
     unsigned long long ctxSwitches = 0LL;
     unsigned long long processExits = 0LL;
     for (int i = 0; i < processes->size(); i++) {
         pageStats = processes->at(i)->pageStats;
-        cycles += ((pageStats->mapCnt * 400) + (pageStats->unmapCnt * 400) + (pageStats->pageinCnt * 3000) + (pageStats->pageoutCnt * 3000)
-                + (pageStats->pagefinCnt * 2500) + (pageStats->pagefoutCnt * 2500) + (pageStats->zeroOpCnt * 150) + (pageStats->segvCnt * 240)
-                + (pageStats->segprotCnt * 300) + (pageStats->accessCnt * 1) + (pageStats->contextCnt * 121) + (pageStats->processExitCnt * 175));
+        cycles += ((pageStats->mapCnt * 400) + (pageStats->unmapCnt * 400) + (pageStats->pageinCnt * 3000) +
+                   (pageStats->pageoutCnt * 3000)
+                   + (pageStats->pagefinCnt * 2500) + (pageStats->pagefoutCnt * 2500) + (pageStats->zeroOpCnt * 150) +
+                   (pageStats->segvCnt * 240)
+                   + (pageStats->segprotCnt * 300) + (pageStats->accessCnt * 1) + (pageStats->contextCnt * 121) +
+                   (pageStats->processExitCnt * 175));
 
         ctxSwitches += pageStats->contextCnt;
         processExits += pageStats->processExitCnt;
 
-        if(processOption)
-            printf("PROC[%d]: U=%llu M=%llu I=%llu O=%llu FI=%llu FO=%llu Z=%llu SV=%llu SP=%llu\n",
-                   processes->at(i)->pid,
-                   pageStats->unmapCnt, pageStats->mapCnt, pageStats->pageinCnt, pageStats->pageoutCnt,
-                   pageStats->pagefinCnt, pageStats->pagefoutCnt, pageStats->zeroOpCnt,
-                   pageStats->segvCnt, pageStats->segprotCnt);
+        printf("PROC[%d]: U=%llu M=%llu I=%llu O=%llu FI=%llu FO=%llu Z=%llu SV=%llu SP=%llu\n",
+               processes->at(i)->pid,
+               pageStats->unmapCnt, pageStats->mapCnt, pageStats->pageinCnt, pageStats->pageoutCnt,
+               pageStats->pagefinCnt, pageStats->pagefoutCnt, pageStats->zeroOpCnt,
+               pageStats->segvCnt, pageStats->segprotCnt);
     }
-    if(sumOption)
-        printf("TOTALCOST %llu %llu %llu %llu\n", instCount, ctxSwitches, processExits, cycles);
+
+    printf("TOTALCOST %llu %llu %llu %llu\n", instCount, ctxSwitches, processExits, cycles);
 }
 
-void unmapPage(FrameTableEntry* oldFTE, bool pageExit){
+void unmapPage(FrameTableEntry* oldFTE, bool pageExit, bool instOption){
     Process *oldProcess = oldFTE->process;
-    printf(" UNMAP %d:%d\n", oldProcess->pid, oldFTE->virtualPageNumber);
+    if(instOption) printf(" UNMAP %d:%d\n", oldProcess->pid, oldFTE->virtualPageNumber);
     oldProcess->pageStats->unmapCnt++;
     if(!pageExit && oldProcess->pageTable.at(oldFTE->virtualPageNumber).modified &
        !oldProcess->pageTable.at(oldFTE->virtualPageNumber).fileMapped){
-        printf(" OUT\n");
+        if(instOption) printf(" OUT\n");
         oldProcess->pageStats->pageoutCnt++;
     }
     if(oldProcess->pageTable.at(oldFTE->virtualPageNumber).fileMapped &
        oldProcess->pageTable.at(oldFTE->virtualPageNumber).modified){
-        printf(" FOUT\n");
+        if(instOption) printf(" FOUT\n");
         oldProcess->pageStats->pagefoutCnt++;
     }
 
@@ -201,7 +203,7 @@ void unmapPage(FrameTableEntry* oldFTE, bool pageExit){
     oldFTE->process = nullptr;
 }
 
-void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool){
+void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool, bool instOption){
     PageTableEntry *pte;
     cout << "EXIT current process " << process->pid << endl;
     for(int i = 0; i < process->pageTable.size(); i++){
@@ -210,7 +212,7 @@ void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<F
         if(pte->present){
             int fteptr = pte->phyAddr;
             FrameTableEntry *oldFTE = frameTable->at(fteptr);
-            unmapPage(oldFTE, true);
+            unmapPage(oldFTE, true, instOption);
             freePool->push_back(oldFTE);
         }
     }

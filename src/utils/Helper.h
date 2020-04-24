@@ -22,10 +22,10 @@ PageTableEntry* getPageTableEntry(pair<char, int> instruction, Process *process)
 void initialiseFrameTable(int frameTableSize, vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool);
 void printPageTable(vector<Process*> *processes);
 void printFrameTable(vector<FrameTableEntry*> *frameTable);
-void printProcessStats(vector<Process*> *processes, unsigned long long instCount, bool processOption, bool sumOption);
+void printProcessStats(vector<Process*> *processes, unsigned long long instCount);
 void printPageTableForProcess(Process *process);
-void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool);
-void unmapPage(FrameTableEntry* oldFTE, bool pageExit);
+void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<FrameTableEntry*> *freePool, bool instOption);
+void unmapPage(FrameTableEntry* oldFTE, bool pageExit, bool instOption);
 void readRandomFile(string filename, vector<int> *randvals);
 int myrandom(vector<int> *randvals, int &randomCounter, int hand);
 #endif //ASSIGNMENT3_HELPER_H
