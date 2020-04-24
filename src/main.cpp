@@ -6,7 +6,7 @@
 #include "utils/Helper.h"
 #include "Process.h"
 #include "utils/ReadFile.h"
-#include "Pagers/Pager.h"
+#include "pagers/Pager.h"
 #include "FrameTableEntry.h"
 #include "pagers/FIFO.h"
 #include "utils/PageStats.h"
