@@ -153,7 +153,7 @@ void printFrameTable(vector<FrameTableEntry*> *frameTable){
     cout << " " << endl;
 }
 
-void printProcessStats(vector<Process*> *processes, unsigned long long instCount){
+void printProcessStats(vector<Process*> *processes, unsigned long long instCount, bool processOption, bool sumOption){
     PageStats *pageStats;
     unsigned long long cycles = 0LL;
     unsigned long long ctxSwitches = 0LL;
@@ -167,13 +167,15 @@ void printProcessStats(vector<Process*> *processes, unsigned long long instCount
         ctxSwitches += pageStats->contextCnt;
         processExits += pageStats->processExitCnt;
 
-        printf("PROC[%d]: U=%llu M=%llu I=%llu O=%llu FI=%llu FO=%llu Z=%llu SV=%llu SP=%llu\n",
-               processes->at(i)->pid,
-               pageStats->unmapCnt, pageStats->mapCnt, pageStats->pageinCnt, pageStats->pageoutCnt,
-               pageStats->pagefinCnt, pageStats->pagefoutCnt, pageStats->zeroOpCnt,
-               pageStats->segvCnt, pageStats->segprotCnt);
+        if(processOption)
+            printf("PROC[%d]: U=%llu M=%llu I=%llu O=%llu FI=%llu FO=%llu Z=%llu SV=%llu SP=%llu\n",
+                   processes->at(i)->pid,
+                   pageStats->unmapCnt, pageStats->mapCnt, pageStats->pageinCnt, pageStats->pageoutCnt,
+                   pageStats->pagefinCnt, pageStats->pagefoutCnt, pageStats->zeroOpCnt,
+                   pageStats->segvCnt, pageStats->segprotCnt);
     }
-    printf("TOTALCOST %llu %llu %llu %llu\n", instCount, ctxSwitches, processExits, cycles);
+    if(sumOption)
+        printf("TOTALCOST %llu %llu %llu %llu\n", instCount, ctxSwitches, processExits, cycles);
 }
 
 void unmapPage(FrameTableEntry* oldFTE, bool pageExit){
@@ -212,4 +214,19 @@ void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<F
             freePool->push_back(oldFTE);
         }
     }
+}
+
+void readRandomFile(string filename, vector<int> *randvals){
+    ifstream input(filename);
+    string line;
+    getline(input, line);
+    while(getline(input, line)) {
+        randvals->push_back(stoi(line));
+    }
+}
+
+int myrandom(vector<int> *randvals, int &randomCounter, int hand) {
+    if (randomCounter == randvals->size())
+        randomCounter = 0;
+    return ((randvals->at(randomCounter++)) % hand);
 }

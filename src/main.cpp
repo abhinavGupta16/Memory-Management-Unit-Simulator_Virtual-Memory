@@ -10,6 +10,9 @@
 #include "FrameTableEntry.h"
 #include "pagers/FIFO.h"
 #include "utils/PageStats.h"
+#include "pagers/Clock.h"
+#include "pagers/Random.h"
+#include "pagers/NotRecentlyUsed.h"
 
 using namespace std;
 
@@ -18,10 +21,10 @@ vector<FrameTableEntry*> freePool;
 int framePointer = 0;
 int frameTableSize = 16;
 Pager* pager;
-bool O = false;
+bool processOption = false;
 bool frameTableOption = false;
 bool pageTableOption = false;
-bool sum = false;
+bool sumOption = false;
 bool xOption = false;
 bool yOption = false;
 
@@ -37,8 +40,11 @@ int main(int argc, char *argv[]) {
 
     vector<Process*> processes;
 
+    vector<int> randvals;
+
     ReadFile *inputFile = new ReadFile(inputFilename);
-    ReadFile *randomFile = new ReadFile(randomFilename);
+
+    readRandomFile(randomFilename, &randvals);
 
     readInputFile(&processes, inputFile);
 
@@ -48,11 +54,18 @@ int main(int argc, char *argv[]) {
     Process *process;
     unsigned long long instCount = 0;
 
+    if(Random* t = dynamic_cast<Random*>(pager)){
+        pager = new Random(&frameTable, &randvals);
+    }
+
+    if(NotRecentlyUsed* t = dynamic_cast<NotRecentlyUsed*>(pager)){
+        pager = new NotRecentlyUsed(&frameTable, &instCount);
+    }
+
     while(getInstruction(inputFile, instruction)) {
         printInstruction(instCount, instruction);
-        instCount++;
         PageTableEntry *pte;
-
+        instCount++;
         switch(instruction.first) {
             case 'c' :
                 process = processes.at(instruction.second);
@@ -111,6 +124,8 @@ int main(int argc, char *argv[]) {
                 }
                 if(xOption)
                     printPageTableForProcess(process);
+                if(yOption)
+                    printPageTable(&processes);
             break;
         }
     }
@@ -120,9 +135,7 @@ int main(int argc, char *argv[]) {
     if(frameTableOption)
         printFrameTable(&frameTable);
 
-    if(O) {
-        printProcessStats(&processes, instCount);
-    }
+    printProcessStats(&processes, instCount, processOption, sumOption);
     return 0;
 }
 
@@ -152,6 +165,21 @@ void parseArguments(int argc, char *argv[]){
                     case 'f':
                         pager = new FIFO(&frameTable);
                         break;
+                    case 'c':
+                        pager = new Clock(&frameTable);
+                        break;
+                    case 'r':
+                        pager = new Random();
+                        break;
+                    case 'e':
+                        pager = new NotRecentlyUsed();
+                        break;
+                    case 'a':
+                        pager = new NotRecentlyUsed();
+                        break;
+                    case 'w':
+                        pager = new NotRecentlyUsed();
+                        break;
                     default:
                         fputs("Error: invalid scheduler "
                               "specified\n\n", stderr);
@@ -162,7 +190,7 @@ void parseArguments(int argc, char *argv[]){
                 for(int i = 0; i < 6; i++) {
                     switch (optarg[i]) {
                         case 'O':
-                            O = true;
+                            processOption = true;
                             break;
                         case 'F':
                             frameTableOption = true;
@@ -171,7 +199,7 @@ void parseArguments(int argc, char *argv[]){
                             pageTableOption = true;
                             break;
                         case 'S':
-                            sum = true;
+                            sumOption = true;
                             break;
                         case 'x':
                             xOption = true;
