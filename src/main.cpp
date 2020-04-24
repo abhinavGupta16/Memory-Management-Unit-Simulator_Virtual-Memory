@@ -115,6 +115,7 @@ int main(int argc, char *argv[]) {
                     process->pageStats->mapCnt++;
                 }
                 pte->referenced = 1;
+
                 if (instruction.first == 'w'){
                     if(pte->writeProtect){
                         cout<<" SEGPROT"<< endl;
@@ -127,6 +128,7 @@ int main(int argc, char *argv[]) {
                     printPageTableForProcess(process);
                 if(yOption)
                     printPageTable(&processes);
+
             break;
         }
         instCount++;
@@ -177,7 +179,7 @@ void parseArguments(int argc, char *argv[]){
                         pager = new NotRecentlyUsed();
                         break;
                     case 'a':
-                        pager = new NotRecentlyUsed();
+                        pager = new Aging(&frameTable);
                         break;
                     case 'w':
                         pager = new NotRecentlyUsed();

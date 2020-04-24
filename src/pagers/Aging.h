@@ -15,8 +15,9 @@ using namespace std;
 class Aging : public Pager{
 private:
     int hand;
-    vector<bitset<32>> agingVector;
+    vector<unsigned int> agingVector;
     vector<FrameTableEntry*> *frameTable;
+    unsigned int victimFrameAge : 32;
 public:
     FrameTableEntry* selectVictimFrame() override;
     Aging(vector<FrameTableEntry*> *frameTable);

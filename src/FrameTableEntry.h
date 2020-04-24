@@ -14,6 +14,11 @@ public:
     int virtualPageNumber;
     int phyFrameNumber;
     FrameTableEntry(Process *process, int virtualPageNumber, int phyFrameNumber);
+
+    // For Aging Algorithm
+    unsigned int age : 32;
+//    uint32_t age;
+    void resetAge();
 };
 
 
