@@ -9,13 +9,10 @@
 #include <bits/stdc++.h>
 #include <string>
 #include "../Process.h"
-#include "../Instruction.h"
 #include "ReadFile.h"
 #include "../FrameTableEntry.h"
 
 using namespace std;
-
-//void readInputFile(string filename, vector<Process*> &processes, vector<Instruction*> &instructions);
 
 void readInputFile(vector<Process*> *processes, ReadFile *inputFile);
 bool getInstruction(ReadFile *inputFile, pair<char,int> &instruction);
@@ -31,5 +28,4 @@ void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<F
 void unmapPage(FrameTableEntry* oldFTE, bool pageExit);
 void readRandomFile(string filename, vector<int> *randvals);
 int myrandom(vector<int> *randvals, int &randomCounter, int hand);
-bool bitlessthan(std::bitset<32> b1, std::bitset<32> b2);
 #endif //ASSIGNMENT3_HELPER_H

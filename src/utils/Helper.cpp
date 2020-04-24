@@ -230,18 +230,3 @@ int myrandom(vector<int> *randvals, int &randomCounter, int hand) {
         randomCounter = 0;
     return ((randvals->at(randomCounter++)) % hand);
 }
-
-bool bitlessthan(std::bitset<32> b1, std::bitset<32> b2) {
-    for (int i =31; i > -1; i--) {
-        if (b1[i] == b2[i]) {
-            continue;
-        }
-        if (b1[i] < b2[i]) {
-            return true;
-        }
-        if (b1[i] > b2[i]) {
-            return false;
-        }
-    }
-    return false;
-}

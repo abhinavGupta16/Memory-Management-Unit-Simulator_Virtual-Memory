@@ -4,8 +4,6 @@
 
 #include "WorkingSet.h"
 #include "../FrameTableEntry.h"
-#include "../utils/Helper.h"
-#include <iostream>
 #include <bits/stdc++.h>
 
 using namespace std;
@@ -17,20 +15,6 @@ WorkingSet::WorkingSet(vector<FrameTableEntry*> *frameTable, unsigned long long 
     this->frameTable = frameTable;
     this->instructionCnt = instructionCnt;
     this->threshold = 49;
-}
-
-void printBits(unsigned int x) {
-    if(x == 0){
-        cout<<"0";
-    }
-
-    for (; x != 0; x >>= 1){
-        if (x & 01)
-            cout << "1";
-        else
-            cout << "0";
-    }
-    cout<<endl;
 }
 
 FrameTableEntry* WorkingSet::selectVictimFrame(){
