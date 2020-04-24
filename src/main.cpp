@@ -59,8 +59,6 @@ int main(int argc, char *argv[]) {
         pager = new Random(&frameTable, &randvals);
     } else if(NotRecentlyUsed* t = dynamic_cast<NotRecentlyUsed*>(pager)){
         pager = new NotRecentlyUsed(&frameTable, &instCount);
-    } else if(Aging* t = dynamic_cast<Aging*>(pager)){
-        pager = new Aging(&frameTable);
     }
 
     while(getInstruction(inputFile, instruction)) {
@@ -105,6 +103,7 @@ int main(int argc, char *argv[]) {
 
                     oldFTE->process = process;
                     oldFTE->virtualPageNumber = instruction.second;
+                    oldFTE->resetAge();
 
                     pte->reset();
 
