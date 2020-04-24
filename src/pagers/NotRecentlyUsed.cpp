@@ -30,8 +30,8 @@ FrameTableEntry* NotRecentlyUsed::selectVictimFrame(){
     bool reset = false;
     int startPos = hand;
     int selectedHand = hand;
-    if((*instructionCount) >= resetCounter) {
-        resetCounter = (*instructionCount) + 50ULL;
+    if((*instructionCount)+1 >= resetCounter) {
+        resetCounter = (*instructionCount)+1 + 50ULL;
         reset = true;
     }
     while(!loopComplete){

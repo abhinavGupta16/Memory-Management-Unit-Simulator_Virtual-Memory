@@ -5,9 +5,21 @@
 #ifndef ASSIGNMENT3_AGING_H
 #define ASSIGNMENT3_AGING_H
 
+#include "Pager.h"
+#include "../FrameTableEntry.h"
+#include <iostream>
+#include <bits/stdc++.h>
 
-class Aging {
+using namespace std;
 
+class Aging : public Pager{
+private:
+    int hand;
+    vector<bitset<32>> agingVector;
+    vector<FrameTableEntry*> *frameTable;
+public:
+    FrameTableEntry* selectVictimFrame() override;
+    Aging(vector<FrameTableEntry*> *frameTable);
 };
 
 

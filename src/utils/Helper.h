@@ -31,4 +31,5 @@ void exitProcess(Process *process,vector<FrameTableEntry*> *frameTable, vector<F
 void unmapPage(FrameTableEntry* oldFTE, bool pageExit);
 void readRandomFile(string filename, vector<int> *randvals);
 int myrandom(vector<int> *randvals, int &randomCounter, int hand);
+bool bitlessthan(std::bitset<32> b1, std::bitset<32> b2);
 #endif //ASSIGNMENT3_HELPER_H

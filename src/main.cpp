@@ -13,6 +13,7 @@
 #include "pagers/Clock.h"
 #include "pagers/Random.h"
 #include "pagers/NotRecentlyUsed.h"
+#include "pagers/Aging.h"
 
 using namespace std;
 
@@ -56,16 +57,16 @@ int main(int argc, char *argv[]) {
 
     if(Random* t = dynamic_cast<Random*>(pager)){
         pager = new Random(&frameTable, &randvals);
-    }
-
-    if(NotRecentlyUsed* t = dynamic_cast<NotRecentlyUsed*>(pager)){
+    } else if(NotRecentlyUsed* t = dynamic_cast<NotRecentlyUsed*>(pager)){
         pager = new NotRecentlyUsed(&frameTable, &instCount);
+    } else if(Aging* t = dynamic_cast<Aging*>(pager)){
+        pager = new Aging(&frameTable);
     }
 
     while(getInstruction(inputFile, instruction)) {
         printInstruction(instCount, instruction);
         PageTableEntry *pte;
-        instCount++;
+//        instCount++;
         switch(instruction.first) {
             case 'c' :
                 process = processes.at(instruction.second);
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
                     //segfault
                     cout<<" SEGV"<<endl;
                     process->pageStats->segvCnt++;
-                    continue;
+                    break;
                 }
                 if(!pte->present){
 
@@ -128,6 +129,7 @@ int main(int argc, char *argv[]) {
                     printPageTable(&processes);
             break;
         }
+        instCount++;
     }
     if(pageTableOption)
         printPageTable(&processes);
