@@ -14,12 +14,12 @@
 #include "pagers/Random.h"
 #include "pagers/NotRecentlyUsed.h"
 #include "pagers/Aging.h"
+#include "pagers/WorkingSet.h"
 
 using namespace std;
 
 vector<FrameTableEntry*> frameTable;
 vector<FrameTableEntry*> freePool;
-int framePointer = 0;
 int frameTableSize = 16;
 Pager* pager;
 bool processOption = false;
@@ -30,7 +30,6 @@ bool xOption = false;
 bool yOption = false;
 
 FrameTableEntry* getFrame(Pager *pager);
-
 void parseArguments(int argc, char *argv[]);
 
 int main(int argc, char *argv[]) {
@@ -40,13 +39,11 @@ int main(int argc, char *argv[]) {
     string randomFilename = argv[optind+1];
 
     vector<Process*> processes;
-
     vector<int> randvals;
 
     ReadFile *inputFile = new ReadFile(inputFilename);
 
     readRandomFile(randomFilename, &randvals);
-
     readInputFile(&processes, inputFile);
 
     initialiseFrameTable(frameTableSize, &frameTable, &freePool);
@@ -59,12 +56,13 @@ int main(int argc, char *argv[]) {
         pager = new Random(&frameTable, &randvals);
     } else if(NotRecentlyUsed* t = dynamic_cast<NotRecentlyUsed*>(pager)){
         pager = new NotRecentlyUsed(&frameTable, &instCount);
+    } else if(WorkingSet* t = dynamic_cast<WorkingSet*>(pager)){
+        pager = new WorkingSet(&frameTable, &instCount);
     }
 
     while(getInstruction(inputFile, instruction)) {
         printInstruction(instCount, instruction);
         PageTableEntry *pte;
-//        instCount++;
         switch(instruction.first) {
             case 'c' :
                 process = processes.at(instruction.second);
@@ -103,7 +101,8 @@ int main(int argc, char *argv[]) {
 
                     oldFTE->process = process;
                     oldFTE->virtualPageNumber = instruction.second;
-                    oldFTE->resetAge();
+                    oldFTE->resetAgingAlgoAge();
+                    oldFTE->timeOfLastUse = instCount+1;
 
                     pte->reset();
 
@@ -181,7 +180,7 @@ void parseArguments(int argc, char *argv[]){
                         pager = new Aging(&frameTable);
                         break;
                     case 'w':
-                        pager = new NotRecentlyUsed();
+                        pager = new WorkingSet();
                         break;
                     default:
                         fputs("Error: invalid scheduler "

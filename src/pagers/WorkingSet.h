@@ -6,8 +6,23 @@
 #define ASSIGNMENT3_WORKINGSET_H
 
 
-class WorkingSet {
+#include "Pager.h"
+#include "../FrameTableEntry.h"
+#include <iostream>
+#include <bits/stdc++.h>
 
+using namespace std;
+
+class WorkingSet : public Pager {
+private:
+    int hand;
+    unsigned long long threshold;
+    vector<FrameTableEntry*> *frameTable;
+    unsigned long long *instructionCnt;
+public:
+    FrameTableEntry* selectVictimFrame() override;
+    WorkingSet(vector<FrameTableEntry*> *frameTable, unsigned long long *instructionCnt);
+    WorkingSet();
 };
 
 

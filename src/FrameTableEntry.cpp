@@ -8,9 +8,10 @@ FrameTableEntry::FrameTableEntry(Process *process, int virtualPageNumber, int ph
     this->process = process;
     this->virtualPageNumber = virtualPageNumber;
     this->phyFrameNumber = phyFrameNumber;
-    this->age = 0;
+    this->agingAlgoAge = 0;
+    this->timeOfLastUse = 0;
 }
 
-void FrameTableEntry::resetAge(){
-    this->age = 0;
+void FrameTableEntry::resetAgingAlgoAge(){
+    this->agingAlgoAge = 0;
 }

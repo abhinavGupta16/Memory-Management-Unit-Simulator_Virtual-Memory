@@ -15,20 +15,6 @@ Aging::Aging(vector<FrameTableEntry*> *frameTable) {
     this->frameTable = frameTable;
 }
 
-void printBits(unsigned int x) {
-    if(x == 0){
-        cout<<"0";
-    }
-
-    for (; x != 0; x >>= 1){
-        if (x & 01)
-            cout << "1";
-        else
-            cout << "0";
-    }
-    cout<<endl;
-}
-
 FrameTableEntry* Aging::selectVictimFrame(){
     int leastAgeIndex = hand;
     int startPos = hand;
@@ -41,14 +27,14 @@ FrameTableEntry* Aging::selectVictimFrame(){
         }
 
         currentFrame = frameTable->at(hand);
-        currentFrame->age = currentFrame->age >> 1;
+        currentFrame->agingAlgoAge = currentFrame->agingAlgoAge >> 1;
 
         if(currentFrame->process->pageTable.at(currentFrame->virtualPageNumber).referenced){
-            currentFrame->age = (currentFrame->age | 0x80000000);
+            currentFrame->agingAlgoAge = (currentFrame->agingAlgoAge | 0x80000000);
             currentFrame->process->pageTable.at(currentFrame->virtualPageNumber).referenced = 0;
         }
 
-        if(currentFrame->age < victimFrame->age){
+        if(currentFrame->agingAlgoAge < victimFrame->agingAlgoAge){
             victimFrame = currentFrame;
             leastAgeIndex = hand;
         }
